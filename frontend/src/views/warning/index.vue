@@ -67,6 +67,64 @@
       <span>共 {{ total }} 条预警阈值记录</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
     </footer>
+
+    <section class="panel-block">
+      <header class="page-head">
+        <div>
+          <h3>待调整记录</h3>
+          <p class="page-desc">
+            来自水位监测会商的结论：最终判定需调整阈值的记录汇总在此，落实调整后点击「完成调整」。
+          </p>
+        </div>
+        <div class="page-actions">
+          <button class="btn" type="button" @click="reloadAdjust">刷新待调整</button>
+        </div>
+      </header>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>会商编号</th>
+            <th>站点编号</th>
+            <th>当前水位</th>
+            <th>警戒/保证门槛</th>
+            <th>门槛来源</th>
+            <th>自动建议</th>
+            <th>人工结论</th>
+            <th>会商理由</th>
+            <th>值班员</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in adjustRows" :key="String(row.会商编号)">
+            <td>{{ row.会商编号 }}</td>
+            <td>{{ row.站点编号 }}</td>
+            <td>{{ row.当前水位 }}</td>
+            <td>{{ row.警戒水位 }} / {{ row.保证水位 }}</td>
+            <td>{{ row.门槛来源 }}</td>
+            <td>{{ row.自动建议 }}</td>
+            <td>
+              {{ row.人工结论 }}
+              <span v-if="row.冲突标记 === '人工改判'" class="conflict-tag">人工改判</span>
+            </td>
+            <td>{{ row.会商理由 }}</td>
+            <td>{{ row.值班员 }}</td>
+            <td class="row-actions">
+              <button class="link" type="button" @click="completeAdjust(row)">完成调整</button>
+            </td>
+          </tr>
+          <tr v-if="!adjustRows.length">
+            <td colspan="10" class="empty-state">暂无待调整记录，水位会商判定需调整后会汇总到这里</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <footer class="page-foot">
+        <span>共 {{ adjustRows.length }} 条待调整记录</span>
+        <span v-if="adjustMessage" class="info-text">{{ adjustMessage }}</span>
+      </footer>
+    </section>
   </section>
 </template>
 
@@ -79,6 +137,8 @@ import {
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
+import { pendingAdjustments, resolveConsultation } from '@/api/consultation-service'
+import { useSessionStore } from '@/stores/session'
 import type { EntryRow } from '@/data/types'
 
 const meta = moduleMeta('warning')
@@ -86,6 +146,8 @@ const columns = ["配置编号", "站点编号", "监测类型", "蓝色阈值",
 const actions = ["发布生效", "调整阈值", "停用配置"]
 const statuses = ["草稿", "已生效", "已调整", "已停用"]
 const stats = [{"label": "配置总数", "value": 0}, {"label": "已生效数", "value": 0}, {"label": "本月调整数", "value": 0}]
+
+const store = useSessionStore()
 
 const rows = ref<EntryRow[]>([])
 const total = ref(0)
@@ -98,6 +160,9 @@ const statusSummary = computed(() =>
     count: rows.value.filter((row) => String(row.status) === status).length,
   })),
 )
+
+const adjustRows = ref<EntryRow[]>([])
+const adjustMessage = ref('')
 
 function resetFilters() {
   filters.value = {}
@@ -122,6 +187,17 @@ function runAction(action: string, row: EntryRow) {
   reload()
 }
 
+function completeAdjust(row: EntryRow) {
+  adjustMessage.value = ''
+  const result = resolveConsultation(String(row.记录编号), store.operator)
+  adjustMessage.value = result.message
+  reloadAdjust()
+}
+
+function reloadAdjust() {
+  adjustRows.value = pendingAdjustments()
+}
+
 function reload() {
   errorMessage.value = ''
   try {
@@ -133,5 +209,8 @@ function reload() {
   }
 }
 
-onMounted(reload)
+onMounted(() => {
+  reload()
+  reloadAdjust()
+})
 </script>
