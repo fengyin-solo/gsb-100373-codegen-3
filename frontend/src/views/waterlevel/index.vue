@@ -7,6 +7,8 @@
       </div>
       <div class="page-actions">
         <button class="btn primary" type="button" @click="openCreate">登记水位记录</button>
+        <button class="btn" type="button" @click="generate">生成阈值会商</button>
+        <RouterLink class="btn" to="/consultation">会商记录</RouterLink>
         <button class="btn" type="button" @click="exportRows">导出水位监测清单</button>
       </div>
     </header>
@@ -65,6 +67,7 @@
 
     <footer class="page-foot">
       <span>共 {{ total }} 条水位监测记录</span>
+      <span v-if="noticeMessage" class="notice-text">{{ noticeMessage }}</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
     </footer>
   </section>
@@ -75,6 +78,7 @@ import { computed, onMounted, ref } from 'vue'
 
 import {
   downloadEntries,
+  generateConsultations,
   listEntries,
   moduleMeta,
   runAction as applyAction,
@@ -90,6 +94,7 @@ const stats = [{"label": "今日采集数", "value": 0}, {"label": "超警戒站
 const rows = ref<EntryRow[]>([])
 const total = ref(0)
 const errorMessage = ref('')
+const noticeMessage = ref('')
 const filters = ref<Record<string, string>>({})
 const filterFields = columns.slice(0, 3)
 const statusSummary = computed(() =>
@@ -110,6 +115,13 @@ function exportRows() {
 
 function openCreate() {
   errorMessage.value = '水位记录登记入口尚未接入审批流'
+}
+
+// 阈值建议走会商：只生成会商记录，不改写这里的水位数据。
+function generate() {
+  errorMessage.value = ''
+  const result = generateConsultations()
+  noticeMessage.value = result.message
 }
 
 function runAction(action: string, row: EntryRow) {

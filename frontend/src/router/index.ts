@@ -10,6 +10,7 @@ const Crosssection = () => import('@/views/crosssection/index.vue')
 const Telemetry = () => import('@/views/telemetry/index.vue')
 const Compilation = () => import('@/views/compilation/index.vue')
 const Warning = () => import('@/views/warning/index.vue')
+const Consultation = () => import('@/views/consultation/index.vue')
 const Groundwater = () => import('@/views/groundwater/index.vue')
 const Evaporation = () => import('@/views/evaporation/index.vue')
 const Cableway = () => import('@/views/cableway/index.vue')
@@ -33,6 +34,7 @@ const router = createRouter({
     { path: '/telemetry', name: 'telemetry', component: Telemetry },
     { path: '/compilation', name: 'compilation', component: Compilation },
     { path: '/warning', name: 'warning', component: Warning },
+    { path: '/consultation', name: 'consultation', component: Consultation },
     { path: '/groundwater', name: 'groundwater', component: Groundwater },
     { path: '/evaporation', name: 'evaporation', component: Evaporation },
     { path: '/cableway', name: 'cableway', component: Cableway },

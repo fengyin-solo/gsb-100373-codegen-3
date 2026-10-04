@@ -54,6 +54,12 @@ export function resetRows(key: string): EntryRow[] {
   return rows
 }
 
+// 丢掉内存缓存重新读 localStorage：会商这类「先查再写」的操作前先刷新，
+// 别的标签页刚写过的结论这里能立刻看到，并发提交才不会留下两份。
+export function refreshRows(): void {
+  cache = readStorage()
+}
+
 export function storageKey(): string {
   return STORAGE_KEY
 }

@@ -36,3 +36,13 @@ export type OverviewResult = {
   cards: { label: string; value: number }[]
   modules: { name: string; created: number; pending: number; abnormal: number }[]
 }
+
+/** 会商结论只允许这两种人工意见。 */
+export type ConsultationOpinion = '采纳' | '驳回'
+
+export type ConsultationGenerateResult = {
+  created: number
+  skipped: number
+  missing: number
+  message: string
+}

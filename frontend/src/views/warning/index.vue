@@ -3,7 +3,7 @@
     <header class="page-head">
       <div>
         <h2>预警阈值管理</h2>
-        <p class="page-desc">维护预警阈值配置，围绕配置编号、站点编号、监测类型、蓝色阈值做登记、筛选与状态流转。</p>
+        <p class="page-desc">维护预警阈值配置，围绕配置编号、站点编号、监测类型、蓝色阈值做登记、筛选与状态流转；水位会商采纳的阈值调整会以「待调整」记录出现在这里。</p>
       </div>
       <div class="page-actions">
         <button class="btn primary" type="button" @click="openCreate">登记预警阈值配置</button>
@@ -84,7 +84,7 @@ import type { EntryRow } from '@/data/types'
 const meta = moduleMeta('warning')
 const columns = ["配置编号", "站点编号", "监测类型", "蓝色阈值", "黄色阈值", "橙色阈值", "红色阈值", "生效状态"]
 const actions = ["发布生效", "调整阈值", "停用配置"]
-const statuses = ["草稿", "已生效", "已调整", "已停用"]
+const statuses = ["草稿", "待调整", "已生效", "已调整", "已停用"]
 const stats = [{"label": "配置总数", "value": 0}, {"label": "已生效数", "value": 0}, {"label": "本月调整数", "value": 0}]
 
 const rows = ref<EntryRow[]>([])
